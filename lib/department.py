@@ -23,7 +23,7 @@ class Department:
             CREATE TABLE IF NOT EXISTS departments (
             id INTEGER PRIMARY KEY,
             name TEXT,
-            location TEXT)
+            location TEXT);
         """
         CURSOR.execute(sql)
         CONN.commit()
@@ -43,7 +43,7 @@ class Department:
         Save the object in local dictionary using table row's PK as dictionary key"""
         sql = """
             INSERT INTO departments (name, location)
-            VALUES (?, ?)
+            VALUES (?, ?);
         """
 
         CURSOR.execute(sql, (self.name, self.location))
@@ -64,7 +64,7 @@ class Department:
         sql = """
             UPDATE departments
             SET name = ?, location = ?
-            WHERE id = ?
+            WHERE id = ?;
         """
         CURSOR.execute(sql, (self.name, self.location, self.id))
         CONN.commit()
@@ -75,7 +75,7 @@ class Department:
 
         sql = """
             DELETE FROM departments
-            WHERE id = ?
+            WHERE id = ?;
         """
 
         CURSOR.execute(sql, (self.id,))
@@ -109,7 +109,7 @@ class Department:
         """Return a list containing a Department object per row in the table"""
         sql = """
             SELECT *
-            FROM departments
+            FROM departments;
         """
 
         rows = CURSOR.execute(sql).fetchall()
@@ -122,7 +122,7 @@ class Department:
         sql = """
             SELECT *
             FROM departments
-            WHERE id = ?
+            WHERE id = ?;
         """
 
         row = CURSOR.execute(sql, (id,)).fetchone()
@@ -134,8 +134,22 @@ class Department:
         sql = """
             SELECT *
             FROM departments
-            WHERE name is ?
+            WHERE name is ?;
         """
 
         row = CURSOR.execute(sql, (name,)).fetchone()
         return cls.instance_from_db(row) if row else None
+
+    def employees(self):
+        """Return list of employees associated with current department"""
+        from employee import Employee
+
+        sql = """
+            SELECT * FROM employees
+            WHERE department_id = ?;
+        """
+        CURSOR.execute(sql, (self.id,))
+
+        rows = CURSOR.fetchall()
+
+        return [Employee.instance_from_db(row) for row in rows]
